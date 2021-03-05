@@ -23,13 +23,13 @@ steps:
   inputs:
     command: restore
     projects: '**/*.csproj'
-  
+    
 - task: DotNetCoreCLI@2
-  displayName: Build
+  displayName: 'dotnet build'
   inputs:
-    command: build
-    projects: '**/*.csproj'
-    arguments: '--configuration $(buildConfiguration)'
+    command: 'build'
+    configuration: $(buildConfiguration)
+    
 - task: DotNetCoreCLI@2
   inputs:
     command: publish
