@@ -8,21 +8,51 @@ trigger:
 
 pool:
   vmImage: windows-latest
-
+ 
 variables:
+#   solution: '**/*.sln'
+  cs_proj: "**/*.csproj"
+  buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
 
 steps:
-- task: UseDotNet@2
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
   inputs:
-    version: '5.0.x'
-    includePreviewVersions: true
+    restoreSolution: '$(cs_proj)'
+
+- task: MSBuild@1
+  inputs:
+    solution: '$(cs_proj)'
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(Build.BinariesDirectory)'
+    includeRootFolder: true
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
+    replaceExistingArchive: true
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'
+
+# variables:
+#   buildConfiguration: 'Release'
+
+# steps:
+# - task: UseDotNet@2
+#   inputs:
+#     version: '5.0.x'
+#     includePreviewVersions: true
   
-- task: DotNetCoreCLI@2
-  displayName: Restore
-  inputs:
-    command: restore
-    projects: '**/*.csproj'
+# - task: DotNetCoreCLI@2
+#   displayName: Restore
+#   inputs:
+#     command: restore
+#     projects: '**/*.csproj'
     
 # - task: DotNetCoreCLI@2
 #   displayName: 'dotnet build'
@@ -30,16 +60,16 @@ steps:
 #     command: 'build'
 #     configuration: $(buildConfiguration)
 
-- task: MSBuild@1
-  displayName: 'Build solution **/*.csproj'   
+# - task: MSBuild@1
+#   displayName: 'Build solution **/*.csproj'   
   
-- task: DotNetCoreCLI@2
-  inputs:
-    command: publish
-    publishWebProjects: True
-    arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-    zipAfterPublish: True
+# - task: DotNetCoreCLI@2
+#   inputs:
+#     command: publish
+#     publishWebProjects: True
+#     arguments: '--configuration $(BuildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+#     zipAfterPublish: True
     
-- task: PublishBuildArtifacts@1
-  inputs:
-    pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+# - task: PublishBuildArtifacts@1
+#   inputs:
+#     pathtoPublish: '$(Build.ArtifactStagingDirectory)'
